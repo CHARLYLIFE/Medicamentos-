@@ -70,7 +70,7 @@
         .confirm-qty-btn { background: #4ade80; color: #121824; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; width: 100%; margin-top: 10px; }
 
         .cart-modal {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 80%;
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 90%;
             background: #1e293b; border-top-left-radius: 20px; border-top-right-radius: 20px;
             box-shadow: 0 -5px 15px rgba(0,0,0,0.5); transform: translateY(100%);
             transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; z-index: 100; color: white;
@@ -80,7 +80,15 @@
         .close-cart { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #aaa; }
         .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
         .cart-footer { padding: 15px; border-top: 1px solid #334155; background: #0f172a; }
-        .whatsapp-checkout-btn { width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 25px; font-size: 1rem; font-weight: bold; }
+        
+        .client-info-form { margin-top: 10px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .client-info-form input {
+            width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 6px;
+            padding: 8px 12px; color: white; font-size: 0.85rem; outline: none;
+        }
+        .client-info-form input::placeholder { color: #64748b; }
+        
+        .whatsapp-checkout-btn { width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 25px; font-size: 1rem; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -151,10 +159,19 @@
             <span>Tu Pedido Actual</span>
             <button class="close-cart" onclick="toggleCart()">✕</button>
         </div>
+        
         <div class="cart-items" id="cartItemsContainer">
             <p style="text-align:center; color:#94a3b8; margin-top:30px;">Tu carrito está vacío</p>
         </div>
+
         <div class="cart-footer">
+            <div class="client-info-form" id="clientFormContainer" style="display: none;">
+                <span style="font-size: 0.85rem; color: #80cbc4; font-weight: bold;">📍 Datos para la Entrega:</span>
+                <input type="text" id="clienteNombre" placeholder="Nombre de quien recibe *">
+                <input type="text" id="clienteDireccion" placeholder="Dirección exacta de entrega *">
+                <input type="tel" id="clienteTelefono" placeholder="Número de teléfono de contacto *">
+            </div>
+
             <div style="display:flex; justify-content:space-between; font-size:1.1rem; font-weight:bold; margin-bottom:12px;">
                 <span>Total a Pagar:</span>
                 <span id="cartTotalPrice" style="color:#4ade80;">$0 CUP</span>
@@ -223,7 +240,6 @@
             document.getElementById('productsView').style.display = 'block';
             document.getElementById('currentCategoryTitle').innerText = nombreCategoria.toUpperCase();
 
-            // Añadir estado al historial del navegador para que el botón "Atrás" físico funcione
             if (registrarHistorial) {
                 history.pushState({ vista: 'categoria', nombre: nombreCategoria }, '');
             }
@@ -265,12 +281,10 @@
             }
         }
 
-        // Manejar el botón físico de retroceso del teléfono
         window.addEventListener('popstate', (event) => {
             const cartModal = document.getElementById('cartModal');
             const quantityModal = document.getElementById('quantityModal');
 
-            // Si hay un modal abierto, cerrarlo primero en lugar de cambiar de vista
             if (cartModal.classList.contains('open')) {
                 toggleCart();
                 history.pushState(null, '');
@@ -282,7 +296,6 @@
                 return;
             }
 
-            // Si estamos viendo productos, volver al menú principal de categorías
             if (document.getElementById('productsView').style.display === 'block') {
                 volverACategorias(true);
             }
@@ -372,10 +385,15 @@
             document.getElementById('cartCountHeader').innerText = totalItems;
 
             const contenedorItems = document.getElementById('cartItemsContainer');
+            const formContainer = document.getElementById('clientFormContainer');
+
             if (carrito.length === 0) {
                 contenedorItems.innerHTML = '<p style="text-align:center; color:#94a3b8; margin-top:30px;">Tu carrito está vacío</p>';
+                formContainer.style.display = 'none';
             } else {
                 contenedorItems.innerHTML = '';
+                formContainer.style.display = 'flex'; // Mostrar campos si hay productos
+
                 carrito.forEach(item => {
                     const row = document.createElement('div');
                     row.style.cssText = "display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid #334155; padding-bottom:8px;";
@@ -404,20 +422,45 @@
         function enviarPedidoWhatsApp() {
             if (carrito.length === 0) return;
 
-            let mensaje = "💊 *NUEVO PEDIDO - FARMACIA CAMAGÜEY*%0A%0A";
-            let total = 0;
+            const nombre = document.getElementById('clienteNombre').value.trim();
+            const direccion = document.getElementById('clienteDireccion').value.trim();
+            const telefono = document.getElementById('clienteTelefono').value.trim();
 
+            if (!nombre || !direccion || !telefono) {
+                alert("⚠️ Por favor, llena todos los datos de entrega (Nombre, Dirección y Teléfono) antes de enviar el pedido.");
+                return;
+            }
+
+            // Recordar los datos guardados en el teléfono del usuario para no tener que escribirlos siempre
+            localStorage.setItem('cliente_nombre', nombre);
+            localStorage.setItem('cliente_direccion', direccion);
+            localStorage.setItem('cliente_telefono', telefono);
+
+            let mensaje = "💊 *NUEVO PEDIDO - FARMACIA CAMAGÜEY*%0A%0A";
+            mensaje += "👤 *Cliente:* " + encodeURIComponent(nombre) + "%0A";
+            mensaje += "📍 *Dirección:* " + encodeURIComponent(direccion) + "%0A";
+            mensaje += "📞 *Teléfono:* " + encodeURIComponent(telefono) + "%0A%0A";
+            mensaje += "📦 *PRODUCTOS:*%0A";
+
+            let total = 0;
             carrito.forEach(item => {
                 let subtotal = item.precio * item.cantidad;
                 total += subtotal;
-                mensaje += `• ${item.nombre} (x${item.cantidad}) - $${subtotal} CUP%0A`;
+                mensaje += `• ${encodeURIComponent(item.nombre)} (x${item.cantidad}) - $${subtotal} CUP%0A`;
             });
 
             mensaje += `%0A💰 *TOTAL A PAGAR: $${total} CUP*%0A📍 _Pedido enviado desde la App_`;
 
-            const telefono = "5350306150";
-            window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
+            const numWhatsApp = "5350306150";
+            window.open(`https://wa.me/${numWhatsApp}?text=${mensaje}`, '_blank');
         }
+
+        // Cargar datos previos del cliente si ya existen
+        window.addEventListener('DOMContentLoaded', () => {
+            if(localStorage.getItem('cliente_nombre')) document.getElementById('clienteNombre').value = localStorage.getItem('cliente_nombre');
+            if(localStorage.getItem('cliente_direccion')) document.getElementById('clienteDireccion').value = localStorage.getItem('cliente_direccion');
+            if(localStorage.getItem('cliente_telefono')) document.getElementById('clienteTelefono').value = localStorage.getItem('cliente_telefono');
+        });
 
         cargarMedicamentosDesdeLaNube();
 
