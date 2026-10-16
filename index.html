@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Farmacia Camagüey</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #121824; color: #fff; display: flex; flex-direction: column; height: 100vh; }
@@ -80,8 +81,7 @@
         .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
         .cart-footer { padding: 15px; border-top: 1px solid #334155; background: #0f172a; }
         .whatsapp-checkout-btn { width: 100%; background: #25d366; color: white; border: none; padding: 12px; border-radius: 25px; font-size: 1rem; font-weight: bold; }
-  <link rel="manifest" href="manifest.json">
-  </style>
+    </style>
 </head>
 <body>
 
@@ -391,23 +391,30 @@
         }
 
         cargarMedicamentosDesdeLaNube();
-    // Detectar o asignar ID único a este dispositivo
-  let userId = localStorage.getItem('app_user_id');
-  if (!userId) {
-    userId = 'user_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('app_user_id', userId);
-  }
 
-  // URL del script de Google
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ0-Szn8FH5YES9cfgbkm3J_6vq0qpH2lizaT-b4EA5abakpjPtYqjSFQ5BPOqx8Gk9Q/exec';
+        // Detectar o asignar ID único a este dispositivo
+        let userId = localStorage.getItem('app_user_id');
+        if (!userId) {
+            userId = 'user_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('app_user_id', userId);
+        }
 
-  // Enviar visita a la pestaña Usuarios en Google Sheets
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId: userId })
-  });
-  </script>
+        // URL del script de Google
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ0-Szn8FH5YES9cfgbkm3J_6vq0qpH2lizaT-b4EA5abakpjPtYqjSFQ5BPOqx8Gk9Q/exec';
+
+        // Enviar visita a la pestaña Usuarios en Google Sheets
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId })
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js');
+        }
+    </script>
 </body>
 </html>
