@@ -166,7 +166,7 @@
     </div>
 
     <script>
-        // Enlace en formato CSV público
+        // Enlace en formato CSV público para los medicamentos
         const ENLACE_CSV = "https://docs.google.com/spreadsheets/d/1lJR7xRaNwn5cxZDidYfVr-h_Q8m5YjCeH2DCW40Agbc/export?format=csv";
 
         let baseDeDatosMedicamentos = [];
@@ -388,25 +388,16 @@
             window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
         }
 
+        // Cargar catálogo de medicamentos
         cargarMedicamentosDesdeLaNube();
 
-        // Detectar o asignar ID único a este dispositivo
-        let userId = localStorage.getItem('app_user_id');
-        if (!userId) {
-            userId = 'user_' + Math.random().toString(36).substr(2, 9);
-            localStorage.setItem('app_user_id', userId);
-        }
-
-        // URL del script de Google con la nueva dirección activa
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzU8Lxe-Hk5H9IC4xeZDjiazh85fENmukozpUT2JdzCrIolYOcw_95x4g1V8EkbJZp6/exec';
-
-        // Enviar visita a la pestaña Usuarios en Google Sheets
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId })
-        });
+        // 📊 CONTADOR DE VISITAS AUTOMÁTICO (Sin errores de CORS)
+        fetch('https://api.counterapi.dev/v1/farmacia_camaguey_pwa/visitas/up')
+            .then(res => res.json())
+            .then(data => {
+                console.log("Visita registrada correctamente. Total:", data.count);
+            })
+            .catch(err => console.log("Contador en segundo plano"));
     </script>
 
     <script>
