@@ -1,6 +1,7 @@
 {
   "name": "Farmacia Camagüey",
   "short_name": "Farmacia",
+  "description": "Aplicación de catálogo e inventario de medicamentos",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#121824",
@@ -9,7 +10,8 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/822/822143.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
