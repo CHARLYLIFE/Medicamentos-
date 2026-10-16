@@ -390,6 +390,23 @@
         }
 
         cargarMedicamentosDesdeLaNube();
-    </script>
+    // Detectar o asignar ID único a este dispositivo
+  let userId = localStorage.getItem('app_user_id');
+  if (!userId) {
+    userId = 'user_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('app_user_id', userId);
+  }
+
+  // URL del script de Google
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ0-Szn8FH5YES9cfgbkm3J_6vq0qpH2lizaT-b4EA5abakpjPtYqjSFQ5BPOqx8Gk9Q/exec';
+
+  // Enviar visita a la pestaña Usuarios en Google Sheets
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId: userId })
+  });
+  </script>
 </body>
 </html>
