@@ -166,7 +166,6 @@
     </div>
 
     <script>
-        // Enlace en formato CSV público para los medicamentos
         const ENLACE_CSV = "https://docs.google.com/spreadsheets/d/1lJR7xRaNwn5cxZDidYfVr-h_Q8m5YjCeH2DCW40Agbc/export?format=csv";
 
         let baseDeDatosMedicamentos = [];
@@ -219,10 +218,15 @@
             return a === b || a.includes(b) || b.includes(a);
         }
 
-        function abrirCategoria(nombreCategoria) {
+        function abrirCategoria(nombreCategoria, registrarHistorial = true) {
             document.getElementById('categoriesView').style.display = 'none';
             document.getElementById('productsView').style.display = 'block';
             document.getElementById('currentCategoryTitle').innerText = nombreCategoria.toUpperCase();
+
+            // Añadir estado al historial del navegador para que el botón "Atrás" físico funcione
+            if (registrarHistorial) {
+                history.pushState({ vista: 'categoria', nombre: nombreCategoria }, '');
+            }
 
             const contenedor = document.getElementById('productListContainer');
             contenedor.innerHTML = '';
@@ -251,11 +255,38 @@
             });
         }
 
-        function volverACategorias() {
+        function volverACategorias(desdeHistorial = false) {
             document.getElementById('productsView').style.display = 'none';
             document.getElementById('categoriesView').style.display = 'block';
             document.getElementById('searchInput').value = '';
+            
+            if (!desdeHistorial && history.state && history.state.vista === 'categoria') {
+                history.back();
+            }
         }
+
+        // Manejar el botón físico de retroceso del teléfono
+        window.addEventListener('popstate', (event) => {
+            const cartModal = document.getElementById('cartModal');
+            const quantityModal = document.getElementById('quantityModal');
+
+            // Si hay un modal abierto, cerrarlo primero en lugar de cambiar de vista
+            if (cartModal.classList.contains('open')) {
+                toggleCart();
+                history.pushState(null, '');
+                return;
+            }
+            if (quantityModal.style.display === 'flex') {
+                quantityModal.style.display = 'none';
+                history.pushState(null, '');
+                return;
+            }
+
+            // Si estamos viendo productos, volver al menú principal de categorías
+            if (document.getElementById('productsView').style.display === 'block') {
+                volverACategorias(true);
+            }
+        });
 
         function buscarMedicamentoGlobal(texto) {
             if (!texto.trim()) return;
@@ -388,16 +419,11 @@
             window.open(`https://wa.me/${telefono}?text=${mensaje}`, '_blank');
         }
 
-        // Cargar catálogo de medicamentos
         cargarMedicamentosDesdeLaNube();
 
-        // 📊 CONTADOR DE VISITAS AUTOMÁTICO (Sin errores de CORS)
-        fetch('https://api.counterapi.dev/v1/farmacia_camaguey_pwa/visitas/up')
-            .then(res => res.json())
-            .then(data => {
-                console.log("Visita registrada correctamente. Total:", data.count);
-            })
-            .catch(err => console.log("Contador en segundo plano"));
+        // Registro silencioso de visitas en segundo plano
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzU8Lxe-Hk5H9IC4xeZDjiazh85fENmukozpUT2JdzCrIolYOcw_95x4g1V8EkbJZp6/exec';
+        fetch(SCRIPT_URL + '?visita=1', { mode: 'no-cors' }).catch(() => {});
     </script>
 
     <script>
