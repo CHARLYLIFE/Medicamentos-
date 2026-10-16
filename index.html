@@ -166,7 +166,7 @@
     </div>
 
     <script>
-        // Enlace en formato CSV público (funciona sin bloqueos de API)
+        // Enlace en formato CSV público
         const ENLACE_CSV = "https://docs.google.com/spreadsheets/d/1lJR7xRaNwn5cxZDidYfVr-h_Q8m5YjCeH2DCW40Agbc/export?format=csv";
 
         let baseDeDatosMedicamentos = [];
@@ -183,7 +183,6 @@
                 const lineas = textoCsv.split('\n');
                 baseDeDatosMedicamentos = [];
 
-                // Recorrer las filas ignorando la cabecera (fila 0)
                 for(let i = 1; i < lineas.length; i++) {
                     if(!lineas[i].trim()) continue;
                     const cols = lineas[i].split(',').map(c => c.replace(/"/g, '').trim());
@@ -213,7 +212,6 @@
             }
         }
 
-        // Función para comparar categorías ignorando mayúsculas, minúsculas y plurales (S al final)
         function coincideCategoria(catHoja, catBuscada) {
             if(!catHoja || !catBuscada) return false;
             let a = catHoja.toLowerCase().trim().replace(/s$/, '');
@@ -399,8 +397,8 @@
             localStorage.setItem('app_user_id', userId);
         }
 
-        // URL del script de Google
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ0-Szn8FH5YES9cfgbkm3J_6vq0qpH2lizaT-b4EA5abakpjPtYqjSFQ5BPOqx8Gk9Q/exec';
+        // URL del script de Google con la nueva dirección activa
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzU8Lxe-Hk5H9IC4xeZDjiazh85fENmukozpUT2JdzCrIolYOcw_95x4g1V8EkbJZp6/exec';
 
         // Enviar visita a la pestaña Usuarios en Google Sheets
         fetch(SCRIPT_URL, {
